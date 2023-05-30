@@ -92,6 +92,7 @@ def concat_image(files, progress_callback):  # test folder 에서 이미지를 �
     print("start concating...")
     def resize_squared_img(img):
         ## img = Image.open(img)
+        w, h = img.size  # Change this line
         h = img.height
         w = img.width
         if w < h:
