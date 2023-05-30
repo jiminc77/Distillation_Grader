@@ -373,4 +373,5 @@ if st.button("finish"):
 # 서버가 종료되지 않았다면, netstat -lnp | grep [포트번호] 후, kill -9 [process_id]
 
 if __name__ == "__main__":
-    reset_directory()
+    # reset_directory()
+    pass
