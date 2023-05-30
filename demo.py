@@ -19,16 +19,21 @@ class VggEncDec(tf.keras.Model):
 
     def call(self, layer, input_img):
         None
+# def load_img(file):
+#     img = np.asarray(Image.open(file), dtype=np.float32)
+#     img = np.expand_dims(cv2.resize(img, (img.shape[1] // 8 * 8, img.shape[0] // 8 * 8)), axis=0) / 255
+#     return img
 
 def load_img(file):
     img = Image.open(file)
     width, height = img.size
-    if width > height:
+    if max(width, height) == width:
         new_width = 1080
-        new_height = int(height * 1080 / width)
+        new_height = int((new_width/width)*height)
     else:
         new_height = 1080
-        new_width = int(width * 1080 / height)
+        new_width = int((new_height/height)*width)
+    
     img = img.resize((new_width, new_height))
     img = np.asarray(img, dtype=np.float32)
     img = np.expand_dims(img, axis=0) / 255
