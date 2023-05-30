@@ -92,7 +92,7 @@ def run(seed=0):
     style = './examples/style'
     output = './outputs'
 
-    if not os.path.exists(os.path.join(output))
+    if not os.path.exists(os.path.join(output)):
         os.makedirs(os.path.join(output))
 
     enc_dec = VggEncDec()

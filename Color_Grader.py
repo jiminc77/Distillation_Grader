@@ -8,7 +8,7 @@ import subprocess
 import shutil
 import sys
 import time
-from demo_V import run
+from demo import run
 
 ### streamlit style options
 
