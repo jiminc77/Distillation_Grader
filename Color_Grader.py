@@ -183,9 +183,9 @@ def delete_all_files(filepath):
     else:
         return "Directory Not Found"
 
-def is_square(image):
-    width, height = image.size
-    return abs(width - height) / width < 0.01  # allow 5 pixel difference about 500 pixel images
+# def is_square(image):
+#     width, height = image.size
+#     return abs(width - height) / width < 0.01  # allow 5 pixel difference about 500 pixel images
 
 def get_images(li):
     imgs=[]
@@ -243,8 +243,8 @@ with st.container():
                 st.session_state.seed=time.time()
                 print(st.session_state.seed)
         
-            if not is_square(target_image):
-                st.error("Please upload a square image.")
+            # if not is_square(target_image):
+            #     st.error("Please upload a square image.")
             else:
                 pass
     
