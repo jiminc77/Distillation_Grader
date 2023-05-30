@@ -209,6 +209,10 @@ def reset_directory():
     delete_folder("examples/style")
     delete_folder("outputs")
 
+@st.cache(allow_output_mutation=True)
+def st_init():
+    reset_directory()
+
 ### streamlit vars
 
 if 'process_idx' not in st.session_state:
