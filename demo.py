@@ -19,10 +19,14 @@ class VggEncDec(tf.keras.Model):
 
     def call(self, layer, input_img):
         None
+
 def load_img(file):
-    img = np.asarray(Image.open(file), dtype=np.float32)
-    img = np.expand_dims(cv2.resize(img, (img.shape[1] // 8 * 8, img.shape[0] // 8 * 8)), axis=0) / 255
-    return img
+    img = Image.open(file)
+    img = img.resize((1080, 1080)) # Resize the image to 1080x1080
+    img = np.asarray(img, dtype=np.float32)
+    img = np.expand_dims(img, axis=0) / 255
+    return img 
+
 
 def inv_sqrt_cov(cov, inverse=False):
     s, u, _ = tf.linalg.svd(cov + tf.eye(cov.shape[-1])) 
