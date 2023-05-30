@@ -5,7 +5,7 @@ test_fold
 #repospecific gitignore
 *.jpg
 *.jpeg
-*.png
+
 *.bmp
 *.tif
 *.tiff
