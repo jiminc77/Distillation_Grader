@@ -325,9 +325,9 @@ st.write(st.session_state.process_idx)
 if st.session_state.process_idx == 3 :
     if st.button("Start Transfer", type="primary",disabled= not target_file or not st.session_state.images,help="shoud need target image and ref images"):   
         directory = 'outputs'
-        # bar = st.progress(0)
+        bar = st.progress(0)
         try:
-            run(seed=st.session_state.seed)
+            run(update_progress_bar, seed=st.session_state.seed)
         except FileNotFoundError as e:
             st.write(e)
 

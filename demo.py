@@ -86,7 +86,7 @@ def stylize_ot(c_feat, s_feat):
     return feat
 
 
-def run(seed=0):
+def run(progress_callback = None, seed=0):
 
     content = './examples/content'
     style = './examples/style'
@@ -102,7 +102,7 @@ def run(seed=0):
     style_seed = f'{seed}_concat_image.jpg'
     cont_img = load_img(os.path.join(content, cont_seed))
     style_img = load_img(os.path.join(style, style_seed))
-
+    
     transform = 'zca'
 
     x1 = enc_dec.sencoder(0, style_img)
@@ -114,22 +114,27 @@ def run(seed=0):
     y2 = enc_dec.sencoder(1, y1[0])
     y3 = enc_dec.sencoder(2, y2[0])
     y4 = enc_dec.sencoder(3, y3[0])
+    progress_callback(0.2)
     
     sfeat = tf.reshape(tf.transpose(x4[0], [0, 3, 1, 2]), [x4[0].shape[0], x4[0].shape[-1], -1])
     x = stylize_core(y4[0], sfeat, transform=transform)
     x = enc_dec.sdecoder(3, x, skip=y4[1])
+    progress_callback(0.4)
 
     sfeat = tf.reshape(tf.transpose(x3[0], [0, 3, 1, 2]), [x3[0].shape[0], x3[0].shape[-1], -1])
     x = stylize_core(x, sfeat, transform=transform)
     x = enc_dec.sdecoder(2, x, skip=y3[1])
+    progress_callback(0.6)
 
     sfeat = tf.reshape(tf.transpose(x2[0], [0, 3, 1, 2]), [x2[0].shape[0], x2[0].shape[-1], -1])
     x = stylize_core(x, sfeat, transform=transform)
     x = enc_dec.sdecoder(1, x, skip=y2[1])
+    progress_callback(0.8)
 
     sfeat = tf.reshape(tf.transpose(x1[0], [0, 3, 1, 2]), [x1[0].shape[0], x1[0].shape[-1], -1])
     x = stylize_core(x, sfeat, transform=transform)
     x = tf.clip_by_value(enc_dec.sdecoder(0, x, skip=y1[1]), 0, 1)
+    progress_callback(0.99)
 
     p_pro.process(x[0], os.path.join(content, cont_seed)).save(os.path.join(output, f'{seed}_result.jpg'))
 
