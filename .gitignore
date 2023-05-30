@@ -2,19 +2,4 @@ examples
 outputs
 test_fold
 
-#repospecific gitignore
-*.jpg
-*.jpeg
 
-*.bmp
-*.tif
-*.tiff
-*.heic
-*.JPG
-*.JPEG
-*.PNG
-*.BMP
-*.TIF
-*.TIFF
-*.HEIC
-*.mp4
