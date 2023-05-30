@@ -22,13 +22,17 @@ class VggEncDec(tf.keras.Model):
 
 def load_img(file):
     img = Image.open(file)
-    ratio = max(img.size) / 1080.0
-    new_size = tuple([round(x / ratio) for x in img.size])
-    img = img.resize(new_size, Image.ANTIALIAS)
+    width, height = img.size
+    if width > height:
+        new_width = 1080
+        new_height = int(height * 1080 / width)
+    else:
+        new_height = 1080
+        new_width = int(width * 1080 / height)
+    img = img.resize((new_width, new_height))
     img = np.asarray(img, dtype=np.float32)
     img = np.expand_dims(img, axis=0) / 255
     return img
-
 
 def inv_sqrt_cov(cov, inverse=False):
     s, u, _ = tf.linalg.svd(cov + tf.eye(cov.shape[-1])) 
