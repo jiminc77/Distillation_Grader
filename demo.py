@@ -91,9 +91,13 @@ def run(progress_callback = None, seed=0):
     content = './examples/content'
     style = './examples/style'
     output = './outputs'
+    output_list = './outputs_list'
 
     if not os.path.exists(os.path.join(output)):
         os.makedirs(os.path.join(output))
+    
+    if not os.path.exists(os.path.join(output_list)):
+        os.makedirs(os.path.join(output_list))
 
     enc_dec = VggEncDec()
     p_pro = GIFSmoothing(r=30, eps= (0.02 * 255) ** 2)
@@ -137,6 +141,21 @@ def run(progress_callback = None, seed=0):
     progress_callback(0.99)
 
     p_pro.process(x[0], os.path.join(content, cont_seed)).save(os.path.join(output, f'{seed}_result.jpg'))
+    
+    # image_A = Image.open(os.path.join(content, cont_seed))
+    # image_B = Image.open(os.path.join(output, f'{seed}_result.jpg'))
+    # image_np_A = np.array(image_A)
+    # image_np_B = np.array(image_B)
+    # image_np_B = cv2.resize(image_np_B, (image_np_A.shape[1], image_np_A.shape[0]))
+
+    # for i in range(10):
+    #     t = 10
+    #     x = i/t
+    #     new_image_np = image_np_A * (1-x) + image_np_B * (x)
+    #     new_image_np = np.clip(new_image_np, 0, 255).astype(np.uint8)
+    #     new_image = Image.fromarray(new_image_np)
+    #     output_image_path = os.path.join(output_list, f'{seed}_{i}_result.png')
+    #     new_image.save(output_image_path)
 
 if __name__ =='__main__':
     os.environ["CUDA_VISIBLE_DEVICES"]="-1"

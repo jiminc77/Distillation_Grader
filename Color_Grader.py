@@ -321,7 +321,6 @@ if st.session_state.images:
         st.session_state.process_idx = 2    
         
 st.write(st.session_state.process_idx)
-
 if st.session_state.process_idx == 3 :
     if st.button("Start Transfer", type="primary",disabled= not target_file or not st.session_state.images,help="shoud need target image and ref images"):   
         directory = 'outputs'
@@ -334,7 +333,25 @@ if st.session_state.process_idx == 3 :
         with st.container():
             st.image(f'outputs/{st.session_state.seed}_result.jpg', use_column_width=True)
             st.session_state.process_idx = 4
-    
+            
+            # folder_path = './outputs_list'
+            # # make slider
+            # selected_image_number = st.slider('', 0, 9, 0)
+            # # import image
+            # image_path = os.path.join(folder_path, f'{st.session_state.seed}_{selected_image_number}_result.png')
+            # image = Image.open(image_path)
+            # # show image
+            # st.image(image)
+
+            # with open(image_path, "rb") as file:
+            #     btn = st.download_button(
+            #         label="Download",
+            #         data=file,
+            #         file_name=f"{selected_image_number}.jpg",
+            #         mime="image/png"
+            #     )
+            #     st.session_state.process_idx == 4:
+            
 
 if st.session_state.process_idx == 4:
     with open(f'outputs/{st.session_state.seed}_result.jpg', 'rb') as file:
