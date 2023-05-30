@@ -91,7 +91,7 @@ def photo_download(c, pk, folder):
 def concat_image(files, progress_callback):  # test folder 에서 이미지를 받아와서 합해야됨
     print("start concating...")
     def resize_squared_img(img):
-        img = Image.open(img)
+        # img = Image.open(img)
         h = img.height
         w = img.width
         if w < h:

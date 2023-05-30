@@ -22,10 +22,12 @@ class VggEncDec(tf.keras.Model):
 
 def load_img(file):
     img = Image.open(file)
-    img = img.resize((1080, 1080)) # Resize the image to 1080x1080
+    ratio = max(img.size) / 1080.0
+    new_size = tuple([round(x / ratio) for x in img.size])
+    img = img.resize(new_size, Image.ANTIALIAS)
     img = np.asarray(img, dtype=np.float32)
     img = np.expand_dims(img, axis=0) / 255
-    return img 
+    return img
 
 
 def inv_sqrt_cov(cov, inverse=False):
