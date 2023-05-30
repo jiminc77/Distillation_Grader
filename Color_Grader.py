@@ -204,6 +204,11 @@ def concating(images):
 def toggle_imethod():
     st.session_state.imethod=0 if st.session_state.imethod else 1
 
+def reset_directory():
+    delete_folder("examples/content")
+    delete_folder("examples/style")
+    delete_folder("outputs")
+
 ### streamlit vars
 
 if 'process_idx' not in st.session_state:
@@ -360,8 +365,12 @@ if st.session_state.process_idx == 4:
 if st.button("finish"):
     st.session_state.process_idx = 1
     print(st.session_state.seed)
-    delete_files([f'examples/style/{st.session_state.seed}_concat_image.jpg',f'examples/content/{st.session_state.seed}_target.jpg',f'outputs/{st.session_state.seed}_result.jpg'])
+    # delete_files([f'examples/style/{st.session_state.seed}_concat_image.jpg',f'examples/content/{st.session_state.seed}_target.jpg',f'outputs/{st.session_state.seed}_result.jpg'])
+    reset_directory()
     st.experimental_rerun()
 
 
 # 서버가 종료되지 않았다면, netstat -lnp | grep [포트번호] 후, kill -9 [process_id]
+
+if __name__ == "__main__":
+    reset_directory()
