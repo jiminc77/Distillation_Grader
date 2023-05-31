@@ -339,16 +339,10 @@ if st.session_state.process_idx == 3:
             # Open the image files
             with open(target_file_path, 'rb') as target, open(images_file_path, 'rb') as images:
                 # Send a post request to the flask server with the image files and the seed
-                # response = requests.post('http://10.54.46.143:8082/process', 
-                #                         files={'content': target, 'style': images}, 
-                #                         json={'seed': st.session_state.seed})
+                response = requests.post('http://10.54.46.143:8082/process', 
+                                        files={'content': target, 'style': images}, 
+                                        json={'seed': st.session_state.seed})
 
-                response = requests.get('http://10.54.46.143:8082/process')
-
-                if response.status_code == 200:
-                    st.success('Connection with the server is successful.')
-                else:
-                    st.error('Could not connect to the server.')
 
                 
                 # Make sure the request was successful
