@@ -24,7 +24,7 @@ streamlit_style = """
             }
             .custom-title {
                 font-weight: 900;  # 텍스트를 굵게
-            }
+            }   
             </style>
          """
 st.markdown(streamlit_style, unsafe_allow_html=True)
@@ -329,14 +329,32 @@ if st.session_state.images:
         st.session_state.process_idx = 2    
         
 st.write(st.session_state.process_idx)
-if st.session_state.process_idx == 3 :
-    if st.button("Start Transfer", type="primary",disabled= not target_file or not st.session_state.images,help="shoud need target image and ref images"):   
-        directory = 'outputs'
-        bar = st.progress(0)
-        try:
-            run(update_progress_bar, seed=st.session_state.seed)
-        except FileNotFoundError as e:
-            st.write(e)
+if st.session_state.process_idx == 3:
+    if st.button("Start Transfer", type="primary", disabled= not target_file or not st.session_state.images, help="should need target image and ref images"):
+        with st.spinner('Processing...'):
+            # Write the uploaded files to disk
+            target_file_path = f'examples/content/{st.session_state.seed}_target.jpg'
+            images_file_path = f'examples/style/{st.session_state.seed}_concat_image.jpg'
+
+            # Open the image files
+            with open(target_file_path, 'rb') as target, open(images_file_path, 'rb') as images:
+                # Send a post request to the flask server with the image files and the seed
+                response = requests.post('http://10.54.46.143:8082', 
+                                        files={'content': target, 'style': images}, 
+                                        json={'seed': st.session_state.seed})
+
+
+                
+                # Make sure the request was successful
+                if response.status_code == 200:
+                    # Save the result image to the output directory
+                    with open('outputs/result.jpg', 'wb') as out_file:
+                        out_file.write(response.content)
+                    st.success('Processing completed.')
+                else:
+                    st.error('An error occurred during processing.')
+
+
 
         with st.container():
             st.image(f'outputs/{st.session_state.seed}_result.jpg', use_column_width=True)

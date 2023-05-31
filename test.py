@@ -4,7 +4,7 @@ import requests
 st.title('Server Connection Test')
 
 # Simple GET request
-response = requests.get('http://10.54.46.143:8082/test')
+response = requests.get('https://mobilex.kr/ai/dev/team8/process')
 
 if response.status_code == 200:
     st.success('Connection with the server is successful.')
