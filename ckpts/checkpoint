@@ -1,2 +1,4 @@
 model_checkpoint_path: "sdecoder"
 all_model_checkpoint_paths: "sdecoder"
+model_checkpoint_path: "sencoder"
+all_model_checkpoint_paths: "sencoder"
