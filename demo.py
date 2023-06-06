@@ -107,7 +107,7 @@ def run(progress_callback = None, seed=0):
     cont_img = load_img(os.path.join(content, cont_seed))
     style_img = load_img(os.path.join(style, style_seed))
     
-    transform = 'zca'
+    transform = 'zca' #zca, ot, adain
 
     x1 = enc_dec.sencoder(0, style_img)
     x2 = enc_dec.sencoder(1, x1[0])

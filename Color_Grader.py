@@ -91,6 +91,33 @@ def photo_download(c, pk, folder):
 
     return p
 
+def rotate_img(img):
+
+    try:
+        exif = img._getexif()
+    except AttributeError:
+        exif = None 
+
+    if exif is not None:
+        orientation = exif.get(0x0112, 1)
+        if orientation == 2:
+            img = img.transpose(Image.FLIP_LEFT_RIGHT)
+        elif orientation == 3:
+            img = img.rotate(180, expand=True)
+        elif orientation == 4:
+            img = img.transpose(Image.FLIP_TOP_BOTTOM)
+        elif orientation == 5:
+            img = img.rotate(-90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+        elif orientation == 6:
+            img = img.rotate(-90, expand=True)
+        elif orientation == 7:
+            img = img.rotate(90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+        elif orientation == 8:
+            img = img.rotate(90, expand=True)
+        print(f'exit : {orientation}')
+
+    return img
+
 def concat_image(files, progress_callback):  # test folder 에서 이미지를 받아와서 합해야됨
     print("start concating...")
     def resize_squared_img(img):
@@ -150,7 +177,6 @@ def concat_image(files, progress_callback):  # test folder 에서 이미지를 �
     createDirectory('examples')
     createDirectory('examples/style')
     createDirectory('examples/content')
-
     concat_single_image.save(f'examples/style/{st.session_state.seed}_concat_image.jpg', 'JPEG')
     return "concat-saved"
 
@@ -251,16 +277,6 @@ with st.container():
                                        type=['jpeg', 'png', 'jpg', 'heic'],
                                        label_visibility='visible',
                                        accept_multiple_files=False)
-        if target_file:
-            target_image = Image.open(target_file)
-            if st.session_state.seed == 0:
-                st.session_state.seed=time.time()
-                print(st.session_state.seed)
-        
-            # if not is_square(target_image):
-            #     st.error("Please upload a square image.")
-            else:
-                pass
     
     with col2:
         print(st.session_state.seed)
@@ -297,22 +313,21 @@ with st.container():
                                           label_visibility='visible',
                                           accept_multiple_files=True)
             if st.button("Process Images", type="primary"):
-                concating(map(Image.open, st.session_state.uploaded))
+                concating(map(rotate_img, map(Image.open, st.session_state.uploaded)))
         
 with st.container():
     ic1, ic2 = st.columns(2)
     print(st.session_state.process_idx)
     if target_file:
-        target = Image.open(target_file).convert("RGB")
-
+        target = Image.open(target_file)
+        # Orientation 수정
+        target = rotate_img(target)    
+        target = target.convert("RGB")
         createDirectory('examples')
         createDirectory('examples/content')
         target.save(f'examples/content/{st.session_state.seed}_target.jpg', 'JPEG')
-        
-        # target.save(f"/examples/content/target.jpg", 'JPEG')
         with ic1:
-            # st.markdown('<div class="custom-style"></div>', unsafe_allow_html=True)
-            st.markdown("**target image**")
+            st.markdown("**Target image**")
             st.image(target)
     with ic2:
         ref_state=st.markdown("")
@@ -327,9 +342,9 @@ with st.container():
 
 if st.session_state.images:
     if st.session_state.crawled:
-        ref_state.markdown("**reference images from CRAWLING**")
+        ref_state.markdown("**Reference images from CRAWLING**")
     if st.session_state.uploaded:
-        ref_state.markdown("**reference images from uploading**")
+        ref_state.markdown("**Reference images from uploading**")
 
     if st.session_state.process_idx<2:
         st.session_state.process_idx = 2    
