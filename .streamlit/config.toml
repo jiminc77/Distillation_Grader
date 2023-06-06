@@ -3,17 +3,3 @@ primaryColor="#60A2D7"
 backgroundColor="#f7f9fa"
 secondaryBackgroundColor="#F2F2F2"
 textColor="#23272a"
-
-[server]
-port = 8082
-headless = true
-enableXsrfProtection = false
-enableWebsocketCompression = false
-enableCORS = false
-baseUrlPath = "/ai/dev/team8/"
-
-[browser]
-# 스트림릿 앱이 실행될 때 웹 브라우저가 자동으로 열리는지 여부
-gatherUsageStats = false
-serverAddress = "0.0.0.0"
-serverPort = 8082
