@@ -8,6 +8,7 @@ textColor="#23272a"
 port = 8082
 headless = true
 enableXsrfProtection = false
+enableWebsocketCompression = false
 enableCORS = false
 baseUrlPath = "/ai/dev/team8/"
 
