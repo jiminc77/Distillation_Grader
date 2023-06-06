@@ -23,6 +23,7 @@ idna==3.4
 importlib-metadata==6.6.0
 importlib-resources==5.12.0
 instagrapi==1.17.10
+itsdangerous==2.1.2
 jax==0.4.10
 Jinja2==3.1.2
 jsonschema==4.17.3
@@ -35,7 +36,6 @@ mdurl==0.1.2
 ml-dtypes==0.1.0
 numpy==1.23.5
 oauthlib==3.2.2
-
 opencv-contrib-python-headless==4.7.0.72
 opt-einsum==3.3.0
 packaging==23.1
@@ -64,6 +64,7 @@ scipy==1.10.1
 six==1.16.0
 smmap==5.0.0
 streamlit==1.22.0
+streamlit-js-eval==0.1.5
 tenacity==8.2.2
 tensorboard==2.12.3
 tensorboard-data-server==0.7.0
