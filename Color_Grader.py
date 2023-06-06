@@ -4,11 +4,14 @@ from instagrapi import Client
 from pathlib import Path
 import requests
 import os
+import glob
 import subprocess
 import shutil
 import sys
 import time
 from demo import run
+
+from streamlit_js_eval import streamlit_js_eval
 
 ### streamlit style options
 
@@ -143,6 +146,8 @@ def concat_image(files, progress_callback):  # test folder 에서 이미지를 �
         concat_single_image=images[0]
     else:
         concat_single_image = vconcat_pil(concat_row,msize)
+
+    createDirectory('examples')
     createDirectory('examples/style')
     createDirectory('examples/content')
 
@@ -182,10 +187,6 @@ def delete_all_files(filepath):
     else:
         return "Directory Not Found"
 
-# def is_square(image):
-#     width, height = image.size
-#     return abs(width - height) / width < 0.01  # allow 5 pixel difference about 500 pixel images
-
 def get_images(li):
     imgs=[]
     for file in li:
@@ -205,13 +206,14 @@ def toggle_imethod():
     st.session_state.imethod=0 if st.session_state.imethod else 1
 
 def reset_directory():
-    delete_folder("examples/content")
-    delete_folder("examples/style")
+    # delete_folder("examples/content")
+    # delete_folder("examples/style")
+    delete_folder('examples')
     delete_folder("outputs")
 
-@st.cache(allow_output_mutation=True)
-def st_init():
-    reset_directory()
+# @st.cache(allow_output_mutation=True)
+# def st_init():
+#     reset_directory()
 
 ### streamlit vars
 
@@ -238,6 +240,10 @@ st.image("intersection.png", width = 100)
 st.markdown('<h1 class="custom-title">AI Color Grader</h1>', unsafe_allow_html=True)
 st.subheader('Find the filter that best fits your Instagram feed!')
 
+# for test
+# if st.button("refresh"):
+#     reset_directory()
+
 with st.container():
     col1, col2 = st.columns(2)
     with col1:
@@ -247,7 +253,7 @@ with st.container():
                                        accept_multiple_files=False)
         if target_file:
             target_image = Image.open(target_file)
-            if not st.session_state.seed:
+            if st.session_state.seed == 0:
                 st.session_state.seed=time.time()
                 print(st.session_state.seed)
         
@@ -293,13 +299,13 @@ with st.container():
             if st.button("Process Images", type="primary"):
                 concating(map(Image.open, st.session_state.uploaded))
         
-
 with st.container():
     ic1, ic2 = st.columns(2)
     print(st.session_state.process_idx)
     if target_file:
         target = Image.open(target_file).convert("RGB")
 
+        createDirectory('examples')
         createDirectory('examples/content')
         target.save(f'examples/content/{st.session_state.seed}_target.jpg', 'JPEG')
         
@@ -330,8 +336,16 @@ if st.session_state.images:
         
 st.write(st.session_state.process_idx)
 if st.session_state.process_idx == 3 :
+    # Delete __pycache__ directories
+    pycache_dirs = glob.glob('**/__pycache__', recursive=True)
+    for pycache_dir in pycache_dirs:
+        try:
+            shutil.rmtree(pycache_dir)
+        except OSError as e:
+            st.write(f"Error: {pycache_dir} : {e.strerror}")
     if st.button("Start Transfer", type="primary",disabled= not target_file or not st.session_state.images,help="shoud need target image and ref images"):   
         directory = 'outputs'
+
         bar = st.progress(0)
         try:
             run(update_progress_bar, seed=st.session_state.seed)
@@ -366,16 +380,13 @@ if st.session_state.process_idx == 4:
         button = st.download_button(label = 'Download', data = file, file_name = "Color_Grading.jpg", mime = 'image/jpg')
 
 
-if st.button("finish"):
-    st.session_state.process_idx = 1
-    print(st.session_state.seed)
-    # delete_files([f'examples/style/{st.session_state.seed}_concat_image.jpg',f'examples/content/{st.session_state.seed}_target.jpg',f'outputs/{st.session_state.seed}_result.jpg'])
+if st.button("finish app"):
     reset_directory()
-    st.experimental_rerun()
 
+    streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
 # 서버가 종료되지 않았다면, netstat -lnp | grep [포트번호] 후, kill -9 [process_id]
-
 if __name__ == "__main__":
-    st_init()
+    if st.session_state.process_idx < 3:
+        reset_directory()
     pass

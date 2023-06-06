@@ -8,7 +8,6 @@ from PIL import Image
 from tqdm import tqdm
 import os, cv2
 
-
 class VggEncDec(tf.keras.Model):
     def __init__(self):
         super(VggEncDec, self).__init__()
@@ -19,24 +18,10 @@ class VggEncDec(tf.keras.Model):
 
     def call(self, layer, input_img):
         None
-# def load_img(file):
-#     img = np.asarray(Image.open(file), dtype=np.float32)
-#     img = np.expand_dims(cv2.resize(img, (img.shape[1] // 8 * 8, img.shape[0] // 8 * 8)), axis=0) / 255
-#     return img
-
+        
 def load_img(file):
-    img = Image.open(file)
-    width, height = img.size
-    if max(width, height) == width:
-        new_width = 1080
-        new_height = int((new_width/width)*height)
-    else:
-        new_height = 1080
-        new_width = int((new_height/height)*width)
-    
-    img = img.resize((new_width, new_height))
-    img = np.asarray(img, dtype=np.float32)
-    img = np.expand_dims(img, axis=0) / 255
+    img = np.asarray(Image.open(file), dtype=np.float32)
+    img = np.expand_dims(cv2.resize(img, (img.shape[1] // 8 * 8, img.shape[0] // 8 * 8)), axis=0) / 255
     return img
 
 def inv_sqrt_cov(cov, inverse=False):
@@ -159,7 +144,7 @@ def run(progress_callback = None, seed=0):
     
     # image_A = Image.open(os.path.join(content, cont_seed))
     # image_B = Image.open(os.path.join(output, f'{seed}_result.jpg'))
-    # image_np_A = np.array(image_A)
+    # image_np_A = np.array(image_A) 
     # image_np_B = np.array(image_B)
     # image_np_B = cv2.resize(image_np_B, (image_np_A.shape[1], image_np_A.shape[0]))
 
@@ -173,5 +158,6 @@ def run(progress_callback = None, seed=0):
     #     new_image.save(output_image_path)
 
 if __name__ =='__main__':
-    os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+    os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = "true"
+    os.environ["CUDA_VISIBLE_DEVICES"]="1"  
     run()
