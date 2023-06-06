@@ -5,3 +5,4 @@ test_fold
 #repospecific gitignore
 *.pyc
 *.out
+*.toml
