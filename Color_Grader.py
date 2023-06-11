@@ -28,6 +28,15 @@ streamlit_style = """
             .custom-title {
                 font-weight: 900;  # 텍스트를 굵게
             }
+            .custom-help-button{
+                
+                display: inline-block;
+                padding: 0.5em 1em;
+                color: #FFFFFF;
+                background-color: #B2B2B2;
+                border-radius: 3px;
+                text-decoration: none;
+            }
             </style>
          """
 st.markdown(streamlit_style, unsafe_allow_html=True)
@@ -45,7 +54,13 @@ def insta_crawling(ID, PW,target="jaeu8021"):
     cl = Client()
     crawl_state.text("Try to access instagram...")
     cl.login(ID, PW)
-    user_id = cl.user_id_from_username(target)
+    try:
+        user_id = cl.user_id_from_username(target)
+    except Exception:
+        st.error(f"Can not find ID '{target}', Please input correct instagram ID.")
+        crawl_state.text("Fail to crawling")
+        return
+
     crawl_state.text("Feed searching...")
 
     medias = cl.user_medias_v1(int(user_id), 9)
@@ -174,12 +189,12 @@ def concat_image(files, preview=False):  # test folder 에서 이미지를 받�
     else:
         concat_single_image = vconcat_pil(concat_row,msize)
 
-    createDirectory('examples')
-    createDirectory('examples/style')
-    createDirectory('examples/content')
+    createDirectory(f'{st.session_state.seed}_examples')
+    createDirectory(f'{st.session_state.seed}_examples/style')
+    createDirectory(f'{st.session_state.seed}_examples/content')
     if preview:
         return concat_single_image
-    concat_single_image.save(f'examples/style/{st.session_state.seed}_concat_image.jpg', 'JPEG')
+    concat_single_image.save(f'{st.session_state.seed}_examples/style/concat_image.jpg', 'JPEG')
     return "concat-saved"
 
 def update_progress_bar(progress):
@@ -236,8 +251,8 @@ def toggle_imethod():
 def reset_directory():
     # delete_folder("examples/content")
     # delete_folder("examples/style")
-    delete_folder('examples')
-    delete_folder("outputs")
+    delete_folder(f'{st.session_state.seed}_examples')
+    delete_folder(f"{st.session_state.seed}_outputs")
 
 # @st.cache(allow_output_mutation=True)
 # def st_init():
@@ -263,9 +278,26 @@ if 'imethod' not in st.session_state:
     st.session_state.imethod=0 #default crawling(0), uploading(1)
 
 ### stramlit UI
-
 st.image("intersection.png", width = 100)
-st.markdown('<h1 class="custom-title">AI Color Grader</h1>', unsafe_allow_html=True)
+title,help=st.columns([0.7,0.3])
+with title:
+    st.markdown('<h1 class="custom-title">AI Color Grader</h1>', unsafe_allow_html=True)
+with help:
+    st.markdown(
+    f"""
+    <div style="display: flex;
+                justify-content: right;
+                align-items: bottom;">
+    <a href="https://www.notion.so/jiminc/Final-Report-8b9e34ac1e1e4b91ada72c7a5ec5f0f5?pvs=4#9c8bffd014234bd5ac243c5171c18c3f" target="_self" >
+        <div class="custom-help-button" >
+            How to use?
+        </div>
+    </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+# st.markdown('*[How to use*](https://www.notion.so/jiminc/Final-Report-8b9e34ac1e1e4b91ada72c7a5ec5f0f5?pvs=4#9c8bffd014234bd5ac243c5171c18c3f)')
 st.subheader('Find the filter that best fits your Instagram feed!')
 
 # for test
@@ -327,20 +359,21 @@ with st.container():
         target = target.convert("RGB")
         if not st.session_state.seed:
             st.session_state.seed=time.time()
-        createDirectory('examples')
-        createDirectory('examples/content')
-        target.save(f'examples/content/{st.session_state.seed}_target.jpg', 'JPEG')
+        st.write(st.session_state.seed)
+        createDirectory(f'{st.session_state.seed}_examples')
+        createDirectory(f'{st.session_state.seed}_examples/content')
+        target.save(f'{st.session_state.seed}_examples/content/target.jpg', 'JPEG')
         with ic1:
             st.markdown("**Target image**")
             st.image(target)
     with ic2:
         ref_state=st.markdown("")
         if st.session_state.process_idx > 2:
-            if not os.path.exists(f'examples/style/{st.session_state.seed}_concat_image.jpg'):
+            if not os.path.exists(f'{st.session_state.seed}_examples/style/concat_image.jpg'):
                 st.session_state.process_idx=1
                 ref_state.markdown("**Error**: try again getting reference images")
             else:   
-                ref=Image.open(f'examples/style/{st.session_state.seed}_concat_image.jpg')
+                ref=Image.open(f'{st.session_state.seed}_examples/style/concat_image.jpg')
                 st.image(ref)
 
 
@@ -362,7 +395,7 @@ if st.session_state.process_idx == 3 :
         except OSError as e:
             st.write(f"Error: {pycache_dir} : {e.strerror}")
     if st.button("Start Transfer", type="primary",disabled= not target_file or not st.session_state.images,help="should need target image and ref images"):   
-        directory = 'outputs'
+        directory = f'{st.session_state.seed}_outputs'
 
         bar = st.progress(0)
         try:
@@ -370,11 +403,11 @@ if st.session_state.process_idx == 3 :
         except FileNotFoundError as e:
             st.write(e)
 
-        with st.container():
-            st.image(f'outputs/{st.session_state.seed}_result.jpg', use_column_width=True)
+        st.session_state.process_idx = 4
+        # with st.container():
+        #     st.image(f'{st.session_state.seed}_outputs/{st.session_state.seed}_result.jpg', use_column_width=True)
 
             # concating(images)
-            st.session_state.process_idx = 4
             
             # folder_path = './outputs_list'
             # # make slider
@@ -396,22 +429,33 @@ if st.session_state.process_idx == 3 :
             
 
 if st.session_state.process_idx == 4:
-    with open(f'outputs/{st.session_state.seed}_result.jpg', 'rb') as file:
-        button = st.download_button(label = '**Download**', data = file, file_name = "Color_Grading.jpg", mime = 'image/jpg')
-        
-    if st.button("preview feed",help="show image as it uploaded to instagram"):
-        preview = rotate_img(Image.open(f'outputs/{st.session_state.seed}_result.jpg'))
+
+    tab1,tab2,tab3 = st.tabs(["Result","Preview feed","Compare"])
+    with tab1:
+        st.image(f'{st.session_state.seed}_outputs/{st.session_state.seed}_result.jpg', use_column_width=True)
+    
+    with tab2: #st.expander("preview feed"):
+        preview = rotate_img(Image.open(f'{st.session_state.seed}_outputs/{st.session_state.seed}_result.jpg'))
+        orimages=[target]
         images=[preview]
         if st.session_state.imethod:
             images+=list(map(rotate_img, map(Image.open, st.session_state.uploaded)))
+            orimages+=list(map(rotate_img, map(Image.open, st.session_state.uploaded)))
         else:
             images+=st.session_state.crawled
+            orimages+=st.session_state.crawled
         cimg=concat_image(images, preview=True)
+        st.image(cimg)
+    with tab3:
+        c1, c2 = st.columns(2)
+        orimg=concat_image(orimages, preview=True)
+        c1.image(orimg)    
+        c2.image(cimg)
+        pass
+
+    with open(f'{st.session_state.seed}_outputs/{st.session_state.seed}_result.jpg', 'rb') as file:
+        button = st.download_button(label = 'Download **stylized image**', data = file, file_name = "Color_Grading.jpg", mime = 'image/jpg')
         
-        with st.container():
-            c1, c2 = st.columns(2)
-            c1.image(preview)    
-            c2.image(cimg)
 
 
 if st.button("Finish app"):

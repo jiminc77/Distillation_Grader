@@ -7,6 +7,7 @@ from utils.photo_gif import GIFSmoothing
 from PIL import Image
 from tqdm import tqdm
 import os, cv2
+import time
 
 class VggEncDec(tf.keras.Model):
     def __init__(self):
@@ -88,9 +89,9 @@ def stylize_ot(c_feat, s_feat):
 
 def run(progress_callback = None, seed=0):
 
-    content = './examples/content'
-    style = './examples/style'
-    output = './outputs'
+    content = f'./{seed}_examples/content'
+    style = f'./{seed}_examples/style'
+    output = f'./{seed}_outputs'
     output_list = './outputs_list'
 
     if not os.path.exists(os.path.join(output)):
@@ -102,11 +103,13 @@ def run(progress_callback = None, seed=0):
     enc_dec = VggEncDec()
     p_pro = GIFSmoothing(r=30, eps= (0.02 * 255) ** 2)
 
-    cont_seed = f'{seed}_target.jpg'
-    style_seed = f'{seed}_concat_image.jpg'
+    cont_seed = f'target.jpg'
+    style_seed = f'concat_image.jpg'
     cont_img = load_img(os.path.join(content, cont_seed))
     style_img = load_img(os.path.join(style, style_seed))
     
+    start_time = time.time() # 시간 측정 시작
+
     transform = 'zca' #zca, ot, adain
 
     x1 = enc_dec.sencoder(0, style_img)
@@ -139,6 +142,9 @@ def run(progress_callback = None, seed=0):
     x = stylize_core(x, sfeat, transform=transform)
     x = tf.clip_by_value(enc_dec.sdecoder(0, x, skip=y1[1]), 0, 1)
     progress_callback(0.99)
+
+    end_time = time.time()  # 코드 종료 시간 측정
+    print(f"Inference Time: {end_time - start_time} seconds")  # 추론 시간 출력
 
     p_pro.process(x[0], os.path.join(content, cont_seed)).save(os.path.join(output, f'{seed}_result.jpg'))
     
