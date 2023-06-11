@@ -118,7 +118,7 @@ def rotate_img(img):
 
     return img
 
-def concat_image(files, progress_callback):  # test folder 에서 이미지를 받아와서 합해야됨
+def concat_image(files, preview=False):  # test folder 에서 이미지를 받아와서 합해야됨
     print("start concating...")
     def resize_squared_img(img):
         h = img.height
@@ -177,6 +177,8 @@ def concat_image(files, progress_callback):  # test folder 에서 이미지를 �
     createDirectory('examples')
     createDirectory('examples/style')
     createDirectory('examples/content')
+    if preview:
+        return concat_single_image
     concat_single_image.save(f'examples/style/{st.session_state.seed}_concat_image.jpg', 'JPEG')
     return "concat-saved"
 
@@ -223,7 +225,7 @@ def get_images(li):
 def concating(images):
     print("concat-processing!!!")
 
-    single = concat_image(images, update_progress_bar)
+    single = concat_image(images)
 
     st.session_state.images = images
     st.session_state.process_idx = 3
@@ -306,7 +308,7 @@ with st.container():
                     except Exception as e:
                         st.write("Crawling Failed...", e)
                     concating(st.session_state.crawled)
-
+                    
         elif st.session_state.imethod==1:
             st.session_state.uploaded = st.file_uploader(label="Choose image(s) for AI to analyze",
                                           type=['jpeg', 'png', 'jpg', 'heic'],
@@ -323,6 +325,8 @@ with st.container():
         # Orientation 수정
         target = rotate_img(target)    
         target = target.convert("RGB")
+        if not st.session_state.seed:
+            st.session_state.seed=time.time()
         createDirectory('examples')
         createDirectory('examples/content')
         target.save(f'examples/content/{st.session_state.seed}_target.jpg', 'JPEG')
@@ -331,7 +335,7 @@ with st.container():
             st.image(target)
     with ic2:
         ref_state=st.markdown("")
-        if st.session_state.process_idx == 3:
+        if st.session_state.process_idx > 2:
             if not os.path.exists(f'examples/style/{st.session_state.seed}_concat_image.jpg'):
                 st.session_state.process_idx=1
                 ref_state.markdown("**Error**: try again getting reference images")
@@ -349,7 +353,6 @@ if st.session_state.images:
     if st.session_state.process_idx<2:
         st.session_state.process_idx = 2    
         
-st.write(st.session_state.process_idx)
 if st.session_state.process_idx == 3 :
     # Delete __pycache__ directories
     pycache_dirs = glob.glob('**/__pycache__', recursive=True)
@@ -358,7 +361,7 @@ if st.session_state.process_idx == 3 :
             shutil.rmtree(pycache_dir)
         except OSError as e:
             st.write(f"Error: {pycache_dir} : {e.strerror}")
-    if st.button("Start Transfer", type="primary",disabled= not target_file or not st.session_state.images,help="shoud need target image and ref images"):   
+    if st.button("Start Transfer", type="primary",disabled= not target_file or not st.session_state.images,help="should need target image and ref images"):   
         directory = 'outputs'
 
         bar = st.progress(0)
@@ -369,6 +372,8 @@ if st.session_state.process_idx == 3 :
 
         with st.container():
             st.image(f'outputs/{st.session_state.seed}_result.jpg', use_column_width=True)
+
+            # concating(images)
             st.session_state.process_idx = 4
             
             # folder_path = './outputs_list'
@@ -392,10 +397,24 @@ if st.session_state.process_idx == 3 :
 
 if st.session_state.process_idx == 4:
     with open(f'outputs/{st.session_state.seed}_result.jpg', 'rb') as file:
-        button = st.download_button(label = 'Download', data = file, file_name = "Color_Grading.jpg", mime = 'image/jpg')
+        button = st.download_button(label = '**Download**', data = file, file_name = "Color_Grading.jpg", mime = 'image/jpg')
+        
+    if st.button("preview feed",help="show image as it uploaded to instagram"):
+        preview = rotate_img(Image.open(f'outputs/{st.session_state.seed}_result.jpg'))
+        images=[preview]
+        if st.session_state.imethod:
+            images+=list(map(rotate_img, map(Image.open, st.session_state.uploaded)))
+        else:
+            images+=st.session_state.crawled
+        cimg=concat_image(images, preview=True)
+        
+        with st.container():
+            c1, c2 = st.columns(2)
+            c1.image(preview)    
+            c2.image(cimg)
 
 
-if st.button("finish app"):
+if st.button("Finish app"):
     reset_directory()
 
     streamlit_js_eval(js_expressions="parent.window.location.reload()")
