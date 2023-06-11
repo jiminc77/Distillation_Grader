@@ -288,7 +288,7 @@ with help:
     <div style="display: flex;
                 justify-content: right;
                 align-items: bottom;">
-    <a href="https://www.notion.so/jiminc/Final-Report-8b9e34ac1e1e4b91ada72c7a5ec5f0f5?pvs=4#9c8bffd014234bd5ac243c5171c18c3f" target="_self" >
+    <a href="https://jiminc.notion.site/AI-Color-Grader-8b9e34ac1e1e4b91ada72c7a5ec5f0f5?pvs=4" target="_self" >
         <div class="custom-help-button" >
             How to use?
         </div>
@@ -297,7 +297,6 @@ with help:
     """,
     unsafe_allow_html=True
     )
-# st.markdown('*[How to use*](https://www.notion.so/jiminc/Final-Report-8b9e34ac1e1e4b91ada72c7a5ec5f0f5?pvs=4#9c8bffd014234bd5ac243c5171c18c3f)')
 st.subheader('Find the filter that best fits your Instagram feed!')
 
 # for test
@@ -454,9 +453,8 @@ if st.session_state.process_idx == 4:
         pass
 
     with open(f'{st.session_state.seed}_outputs/{st.session_state.seed}_result.jpg', 'rb') as file:
-        button = st.download_button(label = 'Download **stylized image**', data = file, file_name = "Color_Grading.jpg", mime = 'image/jpg')
+        button = st.download_button(label = 'Download **Stylized image**', data = file, file_name = "Color_Grading.jpg", mime = 'image/jpg')
         
-
 
 if st.button("Finish app"):
     reset_directory()
@@ -464,6 +462,8 @@ if st.button("Finish app"):
     streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
 # 서버가 종료되지 않았다면, netstat -lnp | grep [포트번호] 후, kill -9 [process_id]
+# 백그라운드 실행 nohup streamlit run Color_Grader.py&
+
 if __name__ == "__main__":
     if st.session_state.process_idx < 3:
         reset_directory()
