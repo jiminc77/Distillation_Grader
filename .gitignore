@@ -6,3 +6,6 @@ test_fold
 *.pyc
 *.out
 *.toml
+*.png
+*.jpg
+*.jpeg
