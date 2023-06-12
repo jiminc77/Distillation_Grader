@@ -37,6 +37,12 @@ streamlit_style = """
                 border-radius: 3px;
                 text-decoration: none;
             }
+            
+            [data-testid="stFileUploadDropzone"] div div::before {color:black; content:"Drag & Drop"}
+            [data-testid="stFileUploadDropzone"] div div span{display:none;}
+            [data-testid="stFileUploadDropzone"] div div::after {color:black; font-size: .8em; content:""}
+            [data-testid="stFileUploadDropzone"] div div small{display:none;}
+
             </style>
          """
 st.markdown(streamlit_style, unsafe_allow_html=True)
@@ -73,7 +79,7 @@ def insta_crawling(ID, PW,target="jaeu8021"):
     createDirectory(folder)
     
     temp = []
-    crawl_state.text(f"Saving Image....({len(temp)})")
+    crawl_state.text(f"Saving Image ... ({len(temp)})")
     for m in medias:
         try:
             p = photo_download(cl, m.pk, folder)
@@ -81,7 +87,7 @@ def insta_crawling(ID, PW,target="jaeu8021"):
         except AssertionError:
             pass
         crawl_state.text(f"Saving Image....({len(temp)})")
-    crawl_state.text("Crawling finished! ") # + os.path.abspath(p))
+    crawl_state.text("Crawling finished! ")
     st.session_state.crawled = [*map(Image.open, temp)]
 
     delete_folder(folder)
@@ -288,7 +294,8 @@ with help:
     <div style="display: flex;
                 justify-content: right;
                 align-items: bottom;">
-    <a href="https://jiminc.notion.site/AI-Color-Grader-8b9e34ac1e1e4b91ada72c7a5ec5f0f5?pvs=4" target="_self" >
+                
+    <a href="https://www.notion.so/jiminc/AI-Color-Grader-8b9e34ac1e1e4b91ada72c7a5ec5f0f5?pvs=4#9c8bffd014234bd5ac243c5171c18c3f" target="_blank" >
         <div class="custom-help-button" >
             How to use?
         </div>
@@ -297,7 +304,7 @@ with help:
     """,
     unsafe_allow_html=True
     )
-st.subheader('Find the filter that best fits your Instagram feed!')
+st.subheader('Find the filter that best fits your Instagram feed')
 
 # for test
 # if st.button("refresh"):
@@ -306,7 +313,7 @@ st.subheader('Find the filter that best fits your Instagram feed!')
 with st.container():
     col1, col2 = st.columns(2)
     with col1:
-        target_file = st.file_uploader(label="Choose an image to apply color correction",
+        target_file = st.file_uploader(label="Choose an image to apply color grading",
                                        type=['jpeg', 'png', 'jpg', 'heic'],
                                        label_visibility='visible',
                                        accept_multiple_files=False)
@@ -318,7 +325,7 @@ with st.container():
                             on_change=toggle_imethod, index=st.session_state.imethod)
         
         if st.session_state.imethod==0: #crawling
-            st.text("Get images for AI to anaylze by Instagram login")
+            # st.text("Get images for AI to anaylze by Instagram login")
             with st.form("crawling"):
                 # insta_id = st.text_input("Put your Instagram ID here!")
                 # insta_pwd = st.text_input('Put your Instagram password here!',type='password')
@@ -326,7 +333,7 @@ with st.container():
                 insta_pwd = "test1!!"
             
                 # username = st.text_input("Put target Instagram ID here if you want!",placeholder="default:your_id")
-                username = st.text_input("Put target Instagram ID here if you want!")
+                username = st.text_input("Put target Instagram ID here")
                 
                 submitted = st.form_submit_button("Submit")
                 if submitted:
@@ -343,7 +350,7 @@ with st.container():
         elif st.session_state.imethod==1:
             st.session_state.uploaded = st.file_uploader(label="Choose image(s) for AI to analyze",
                                           type=['jpeg', 'png', 'jpg', 'heic'],
-                                          label_visibility='visible',
+                                          label_visibility='collapsed',
                                           accept_multiple_files=True)
             if st.button("Process Images", type="primary"):
                 concating(map(rotate_img, map(Image.open, st.session_state.uploaded)))
@@ -358,7 +365,7 @@ with st.container():
         target = target.convert("RGB")
         if not st.session_state.seed:
             st.session_state.seed=time.time()
-        st.write(st.session_state.seed)
+        # st.write(st.session_state.seed)
         createDirectory(f'{st.session_state.seed}_examples')
         createDirectory(f'{st.session_state.seed}_examples/content')
         target.save(f'{st.session_state.seed}_examples/content/target.jpg', 'JPEG')
@@ -370,7 +377,7 @@ with st.container():
         if st.session_state.process_idx > 2:
             if not os.path.exists(f'{st.session_state.seed}_examples/style/concat_image.jpg'):
                 st.session_state.process_idx=1
-                ref_state.markdown("**Error**: try again getting reference images")
+                ref_state.markdown("**Error**: Try again getting style images")
             else:   
                 ref=Image.open(f'{st.session_state.seed}_examples/style/concat_image.jpg')
                 st.image(ref)
@@ -378,9 +385,9 @@ with st.container():
 
 if st.session_state.images:
     if st.session_state.crawled:
-        ref_state.markdown("**Reference images from CRAWLING**")
+        ref_state.markdown("**Style images from instagram**")
     if st.session_state.uploaded:
-        ref_state.markdown("**Reference images from uploading**")
+        ref_state.markdown("**Style images from uploading**")
 
     if st.session_state.process_idx<2:
         st.session_state.process_idx = 2    
@@ -393,7 +400,7 @@ if st.session_state.process_idx == 3 :
             shutil.rmtree(pycache_dir)
         except OSError as e:
             st.write(f"Error: {pycache_dir} : {e.strerror}")
-    if st.button("Start Transfer", type="primary",disabled= not target_file or not st.session_state.images,help="should need target image and ref images"):   
+    if st.button("Start Grading", type="primary",disabled= not target_file or not st.session_state.images,help="should need target image and ref images"):   
         directory = f'{st.session_state.seed}_outputs'
 
         bar = st.progress(0)
